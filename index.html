@@ -162,19 +162,23 @@
     text-transform:uppercase;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:3px;
     text-decoration:none}
 
-  /* ▶ 가로 핀 갤러리 : 스크롤하면 사진이 옆으로 흐름(매거진 스프레드) */
-  .h-gallery{position:relative;height:300vh;padding:0}
-  .h-stage{position:sticky;top:0;height:100svh;overflow:hidden;contain:layout paint;
+  /* ▶ 가로 스와이프 갤러리 : 세로 흐름은 유지하고, 사진만 좌우로 넘김 */
+  .h-gallery{position:relative;padding:18vh 0 16vh}
+  .h-stage{position:relative;overflow:hidden;contain:layout paint;
     display:flex;flex-direction:column;justify-content:center}
-  .h-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);z-index:0;
+  .h-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);z-index:0;
     font-family:var(--serif);font-weight:500;font-size:clamp(160px,52vw,360px);line-height:.8;
     color:rgba(42,38,34,.06);pointer-events:none}
   .h-head{position:relative;z-index:2;display:flex;align-items:center;gap:14px;justify-content:center;
     margin-bottom:26px}
   .h-track{position:relative;z-index:2;display:flex;gap:18px;padding:0 26px;
-    will-change:transform;backface-visibility:hidden;align-items:center}
-  .h-shot{flex:0 0 70%;max-width:360px;aspect-ratio:3/4;border-radius:1px;cursor:pointer}
-  @media(min-width:680px){.h-shot{flex-basis:38%}}
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding:26px;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;align-items:center}
+  .h-track::-webkit-scrollbar{display:none}
+  .h-shot{flex:0 0 72%;max-width:360px;aspect-ratio:3/4;border-radius:1px;cursor:pointer;
+    scroll-snap-align:center}
+  .h-shot.land{aspect-ratio:4/3}
+  @media(min-width:680px){.h-shot{flex-basis:34%}.h-shot.land{flex-basis:46%}}
   .h-shot .num{position:absolute;left:12px;top:10px;z-index:3;font-size:10px;letter-spacing:.2em;
     color:#fff;opacity:0;transition:opacity 1s .4s;text-shadow:0 1px 6px rgba(0,0,0,.5)}
   .h-shot.is-in .num{opacity:.85}
@@ -201,11 +205,18 @@
   /* The Place */
   .place .map{height:200px;margin:26px 0;border:1px solid var(--line);
     background:repeating-linear-gradient(45deg,var(--paper2),var(--paper2) 12px,var(--paper) 12px,var(--paper) 24px);
-    display:grid;place-items:center;color:var(--muted);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+    display:grid;place-items:center;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    padding:24px}
+  .place .map strong{display:block;font-family:var(--serif);font-size:24px;font-weight:500;color:var(--ink);
+    letter-spacing:.04em;text-transform:none}
+  .place .map small{display:block;max-width:260px;margin-top:4px;font-size:11px;line-height:1.7;letter-spacing:.08em;
+    color:var(--muted);text-transform:none}
+  .place .map-pin{font-size:10px;color:var(--accent)}
   .place .navs{display:flex;gap:8px}
-  .place .navs a{flex:1;text-align:center;padding:14px;border:1px solid var(--line);color:var(--ink);
-    text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;transition:.4s}
-  .place .navs a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .place .navs :is(a,button){flex:1;text-align:center;padding:14px;border:1px solid var(--line);color:var(--ink);
+    background:transparent;text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;transition:.4s;
+    font-family:var(--sans);cursor:pointer}
+  .place .navs :is(a,button):hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
   /* A Token */
   .acc{border-top:1px solid var(--line)}
@@ -411,20 +422,24 @@
     </div>
   </section>
 
-  <!-- ── 챕터 03 · 가로 핀 갤러리 (스크롤 → 옆으로 흐름) ── -->
+  <!-- ── 챕터 03 · 좌우 스와이프 갤러리 ── -->
   <section class="chapter h-gallery" data-ch="03" data-label="MOMENTS">
     <div class="h-stage">
       <div class="h-wm" aria-hidden="true">03</div>
       <div class="h-head"><span class="ln-s"></span><span class="kicker">Selected Moments</span><span class="ln-s"></span></div>
       <div class="h-track" id="hTrack">
-        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g1.jpg" alt="" loading="lazy"/><span class="num">001</span><span class="reveal-cap">first chapters</span></figure>
-        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g2.jpg" alt="" loading="lazy"/><span class="num">002</span><span class="reveal-cap">through your lens</span></figure>
-        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g3.jpg" alt="" loading="lazy"/><span class="num">003</span><span class="reveal-cap">the two of us</span></figure>
-        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g4.jpg" alt="" loading="lazy"/><span class="num">004</span><span class="reveal-cap">just being us</span></figure>
-        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g5.jpg" alt="" loading="lazy"/><span class="num">005</span><span class="reveal-cap">one more frame</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g1.jpg" alt="" loading="lazy"/><span class="num">001</span><span class="reveal-cap">the cover frame</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g2.jpg" alt="" loading="lazy"/><span class="num">002</span><span class="reveal-cap">first chapters</span></figure>
+        <figure class="ed h-shot land" data-cursor="HOLD"><img src="./images/g3.jpg" alt="" loading="lazy"/><span class="num">003</span><span class="reveal-cap">where it begins</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g4.jpg" alt="" loading="lazy"/><span class="num">004</span><span class="reveal-cap">the two of us</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g5.jpg" alt="" loading="lazy"/><span class="num">005</span><span class="reveal-cap">through your lens</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g6.jpg" alt="" loading="lazy"/><span class="num">006</span><span class="reveal-cap">just being us</span></figure>
+        <figure class="ed h-shot land" data-cursor="HOLD"><img src="./images/g7.jpg" alt="" loading="lazy"/><span class="num">007</span><span class="reveal-cap">a quiet pause</span></figure>
+        <figure class="ed h-shot" data-cursor="HOLD"><img src="./images/g8.jpg" alt="" loading="lazy"/><span class="num">008</span><span class="reveal-cap">one more frame</span></figure>
+        <figure class="ed h-shot land" data-cursor="HOLD"><img src="./images/g9.jpg" alt="" loading="lazy"/><span class="num">009</span><span class="reveal-cap">the final still</span></figure>
       </div>
       <div class="h-progress"><span id="hBar"></span></div>
-      <div class="h-hint">Scroll ↓ · 사진을 누르면 컬러로 현상됩니다</div>
+      <div class="h-hint">Swipe ↔ · 아래로 스크롤하면 계속 이동합니다</div>
     </div>
   </section>
 
@@ -458,12 +473,16 @@
     <div class="ch-inner col place">
       <div class="ch-kicker"><span class="ln-s"></span><span class="kicker">The Place</span><span class="ln-s"></span></div>
       <p class="lead lines center"><span class="ln"><span>오펠리스 웨딩</span></span></p>
-      <p class="body center reveal" style="margin-top:14px">라비제홀 · 서울 중구 세종대로9길 41, 퍼시픽타워 20F</p>
-      <div class="map reveal">Map — 카카오 / 네이버 지도 연동</div>
+      <p class="body center reveal" style="margin-top:14px">라비제홀 · 서울특별시 중구 세종대로9길 41, 퍼시픽타워 20F</p>
+      <div class="map reveal">
+        <span class="map-pin">Ophelis Wedding</span>
+        <strong>라비제홀</strong>
+        <small>서울특별시 중구 세종대로9길 41 · 퍼시픽타워 20F</small>
+      </div>
       <div class="navs reveal">
-        <a href="https://map.naver.com/" target="_blank" rel="noopener" data-magnet data-cursor="MAP">Naver</a>
-        <a href="https://map.kakao.com/" target="_blank" rel="noopener" data-magnet data-cursor="MAP">Kakao</a>
-        <a href="https://tmap.life/" target="_blank" rel="noopener" data-magnet data-cursor="MAP">Tmap</a>
+        <button type="button" data-map="naver" data-magnet data-cursor="MAP">Naver</button>
+        <button type="button" data-map="kakao" data-magnet data-cursor="MAP">Kakao</button>
+        <button type="button" data-map="tmap" data-magnet data-cursor="MAP">Tmap</button>
       </div>
     </div>
   </section>
@@ -545,7 +564,7 @@ const chIO = new IntersectionObserver(es=>es.forEach(e=>{
 }),{rootMargin:'-50% 0px -50% 0px'});
 document.querySelectorAll('.chapter,.cover,.colophon').forEach(el=>chIO.observe(el));
 
-/* ════════ 인터랙션 ① 커버 깊이 패럴랙스 · ② 속도 반응 리본 · ③ 가로 핀 갤러리 ════════ */
+/* ════════ 인터랙션 ① 커버 깊이 패럴랙스 · ② 속도 반응 리본 · ③ 가로 스와이프 갤러리 ════════ */
 const coverEl=$('.cover'), coverImg=document.getElementById('coverImg'),
       coverHead=$('.cover__head'), coverMast=$('.cover__mast'), coverSub=$('.cover__sub');
 let mx=0,my=0,cmx=0,cmy=0;
@@ -560,8 +579,8 @@ const hSec=$('.h-gallery'), hTrack=document.getElementById('hTrack'), hBar=docum
 const railFill=document.getElementById('railFill');
 let prevY=scrollY, cursorTick=function(){};
 let viewportH=innerHeight, viewportW=innerWidth, docMax=1;
-let hStart=0, hTotal=1, hShift=0, ribbonHalf=1;
-let lastRail=-1, lastGallery=-1;
+let hMax=1, ribbonHalf=1;
+let lastRail=-1;
 
 function measure(){
   viewportH=innerHeight;
@@ -569,14 +588,18 @@ function measure(){
   docMax=Math.max(1, document.documentElement.scrollHeight-viewportH);
   ribbonHalf=Math.max(1, ribbon.scrollWidth/2);
   if(hSec && hTrack){
-    hStart=hSec.offsetTop;
-    hTotal=Math.max(1, hSec.offsetHeight-viewportH);
-    hShift=Math.max(0, hTrack.scrollWidth-viewportW);
+    hMax=Math.max(1, hTrack.scrollWidth-hTrack.clientWidth);
+    updateGalleryProgress();
   }
 }
 measure();
 addEventListener('resize',measure,{passive:true});
 addEventListener('load',measure,{once:true});
+function updateGalleryProgress(){
+  if(!hTrack || !hBar) return;
+  hBar.style.width=(hTrack.scrollLeft/hMax*100).toFixed(1)+'%';
+}
+if(hTrack) hTrack.addEventListener('scroll',updateGalleryProgress,{passive:true});
 
 function loop(){
   const y=scrollY;
@@ -599,16 +622,6 @@ function loop(){
     if(rx>=ribbonHalf) rx-=ribbonHalf;
     const sk=Math.max(-15,Math.min(15,vel*0.7));
     ribbon.style.transform=`translateX(${-rx}px) skewX(${sk}deg)`;
-  }
-
-  // ③ 가로 핀 갤러리 : 세로 스크롤 진행도를 가로 이동으로 변환
-  if(hSec){
-    const p=Math.min(1,Math.max(0,(y-hStart)/hTotal));
-    if(Math.abs(p-lastGallery)>.001){
-      lastGallery=p;
-      hTrack.style.transform=`translate3d(${-(p*hShift)}px,0,0)`;
-      hBar.style.width=(p*100).toFixed(1)+'%';
-    }
   }
 
   // 읽기 진행 레일
@@ -730,6 +743,45 @@ document.getElementById('shareBtn').addEventListener('click',async()=>{
   else{try{await navigator.clipboard.writeText(location.href);flash('링크 복사됨');}catch{}}
 });
 document.getElementById('topBtn').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+
+/* ── 지도/내비 : 네이버 · 카카오 · 티맵 앱 딥링크 + 웹 fallback ── */
+const VENUE = {
+  name:'오펠리스웨딩 라비제홀',
+  address:'서울특별시 중구 세종대로9길 41 퍼시픽타워 20F',
+  lat:37.56008,
+  lng:126.97376
+};
+function openExternal(appUrl, webUrl){
+  const t=Date.now();
+  location.href=appUrl;
+  setTimeout(()=>{
+    if(Date.now()-t<1650) window.open(webUrl,'_blank','noopener');
+  },900);
+}
+document.querySelectorAll('[data-map]').forEach(btn=>btn.addEventListener('click',()=>{
+  const q=encodeURIComponent(`${VENUE.name} ${VENUE.address}`);
+  const name=encodeURIComponent(VENUE.name);
+  const addr=encodeURIComponent(VENUE.address);
+  const lat=VENUE.lat, lng=VENUE.lng;
+  const maps={
+    naver:{
+      app:`nmap://route/public?dlat=${lat}&dlng=${lng}&dname=${name}&appname=com.newchapter.invitation`,
+      web:`https://map.naver.com/v5/search/${q}`
+    },
+    kakao:{
+      app:`kakaomap://route?ep=${lat},${lng}&by=PUBLICTRANSIT`,
+      web:`https://map.kakao.com/link/to/${name},${lat},${lng}`
+    },
+    tmap:{
+      app:`tmap://route?goalx=${lng}&goaly=${lat}&goalname=${name}`,
+      web:`https://apis.openapi.sk.com/tmap/app/routes?goalname=${name}&goalx=${lng}&goaly=${lat}`
+    }
+  };
+  const target=maps[btn.dataset.map];
+  if(!target) return;
+  flash(`${btn.textContent} 길찾기`);
+  openExternal(target.app,target.web);
+}));
 
 /* ════════ BGM : 기본 ON · 자동재생 차단 시 첫 제스처에서 시작 · 플로팅 토글 ════════ */
 (function bgm(){
