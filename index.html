@@ -172,11 +172,11 @@
   .h-head{position:relative;z-index:2;display:flex;align-items:center;gap:14px;justify-content:center;
     margin-bottom:26px}
   .h-track{position:relative;z-index:2;display:flex;gap:18px;padding:0 26px;
-    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding:26px;
-    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;align-items:center}
+    overflow-x:auto;overflow-y:hidden;scroll-padding:26px;touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;align-items:center;cursor:grab}
+  .h-track.dragging{cursor:grabbing;scroll-behavior:auto}
   .h-track::-webkit-scrollbar{display:none}
-  .h-shot{flex:0 0 72%;max-width:360px;aspect-ratio:3/4;border-radius:1px;cursor:pointer;
-    scroll-snap-align:center}
+  .h-shot{flex:0 0 72%;max-width:360px;aspect-ratio:3/4;border-radius:1px;cursor:pointer}
   .h-shot.land{aspect-ratio:4/3}
   @media(min-width:680px){.h-shot{flex-basis:34%}.h-shot.land{flex-basis:46%}}
   .h-shot .num{position:absolute;left:12px;top:10px;z-index:3;font-size:10px;letter-spacing:.2em;
@@ -600,6 +600,72 @@ function updateGalleryProgress(){
   hBar.style.width=(hTrack.scrollLeft/hMax*100).toFixed(1)+'%';
 }
 if(hTrack) hTrack.addEventListener('scroll',updateGalleryProgress,{passive:true});
+
+/* 갤러리 축 잠금: 좌우 제스처는 갤러리만, 위아래 제스처는 페이지만 움직이게 분리 */
+if(hTrack){
+  let gx=0, gy=0, gs=0, glock='', gmoved=false;
+  let suppressGalleryClickUntil=0;
+  const startGallery = (x,y)=>{
+    gx=x; gy=y; gs=hTrack.scrollLeft; glock=''; gmoved=false;
+    hTrack.classList.add('dragging');
+  };
+  const moveGallery = (x,y,e)=>{
+    const dx=x-gx, dy=y-gy, ax=Math.abs(dx), ay=Math.abs(dy);
+    if(!glock && (ax>8 || ay>8)){
+      glock = ax > ay*1.12 ? 'x' : 'y';
+    }
+    if(glock==='x'){
+      e.preventDefault();
+      gmoved=true;
+      hTrack.scrollLeft = gs - dx;
+      updateGalleryProgress();
+    }
+  };
+  const endGallery = ()=>{
+    hTrack.classList.remove('dragging');
+    if(gmoved) suppressGalleryClickUntil=Date.now()+420;
+    gmoved=false;
+  };
+  hTrack.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1) return;
+    startGallery(e.touches[0].clientX,e.touches[0].clientY);
+  },{passive:true});
+  hTrack.addEventListener('touchmove',e=>{
+    if(e.touches.length!==1) return;
+    moveGallery(e.touches[0].clientX,e.touches[0].clientY,e);
+  },{passive:false});
+  ['touchend','touchcancel'].forEach(ev=>hTrack.addEventListener(ev,endGallery,{passive:true}));
+  hTrack.addEventListener('click',e=>{
+    if(Date.now()<suppressGalleryClickUntil){ e.preventDefault(); e.stopPropagation(); }
+  },true);
+  hTrack.addEventListener('wheel',e=>{
+    const horizontalIntent=Math.abs(e.deltaX)>Math.abs(e.deltaY) || e.shiftKey;
+    if(!horizontalIntent) return;
+    e.preventDefault();
+    hTrack.scrollLeft += e.deltaX || e.deltaY;
+    updateGalleryProgress();
+  },{passive:false});
+  let pointerDrag=false;
+  hTrack.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='mouse' || e.button!==0) return;
+    pointerDrag=true;
+    startGallery(e.clientX,e.clientY);
+    hTrack.setPointerCapture(e.pointerId);
+  });
+  hTrack.addEventListener('pointermove',e=>{
+    if(!pointerDrag) return;
+    e.preventDefault();
+    gmoved=true;
+    hTrack.scrollLeft = gs - (e.clientX-gx);
+    updateGalleryProgress();
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>hTrack.addEventListener(ev,e=>{
+    if(!pointerDrag) return;
+    pointerDrag=false;
+    endGallery();
+    try{ hTrack.releasePointerCapture(e.pointerId); }catch{}
+  }));
+}
 
 function loop(){
   const y=scrollY;
